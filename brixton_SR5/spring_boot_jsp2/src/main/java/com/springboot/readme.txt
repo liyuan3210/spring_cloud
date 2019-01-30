@@ -1,0 +1,17 @@
+1.4.x打包运行均正常，高版本SpringBoot打包运行找不到jsp可设置spring-boot-maven-plugin版本为1.4.2打包  
+<plugin>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-maven-plugin</artifactId>
+	<version>1.4.2.RELEASE</version>
+	<executions>
+		<execution>
+			<goals>
+				<goal>repackage</goal>
+			</goals>
+		</execution>
+	</executions>
+	<configuration>
+		<mainClass>${start-class}</mainClass>
+		<layout>JAR</layout>
+	</configuration>
+</plugin>  

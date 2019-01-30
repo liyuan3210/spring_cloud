@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com</groupId>
+  <artifactId>spring_cloud</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+	<!-- 微服务框架 -->
+	<module>spring_boot</module>
+	<!-- 网关路由 -->
+  	<module>api_gateway</module>
+	<module>api_gateway_dynamic_filter</module>
+	<module>api_gateway_dynamic_route</module>
+	<module>api_gateway_tradition</module>
+	<!-- 注册中心 -->
+	<module>eureka_server</module>
+	<!-- 配置中心 -->
+	<module>config_client</module>
+	<module>config_server</module>
+	<!-- 服务消费者 -->
+	<module>ribbon_consumer</module>
+	<module>feign_consumer</module>
+	<!-- 服务提供者 -->
+	<module>hello_service</module>
+	<module>hello_service_api</module>
+	<module>spring_boot_jsp</module>
+	<!-- 消息总线 -->
+	<module>rabbitmq_hello</module>
+	<!-- 消息驱动微服务 -->
+	<module>stream_hello</module>
+	<!-- 微服务监控 -->
+	<module>hystrix_dashboard</module>
+	<module>turbine</module>
+	<module>turbine_amqp</module>
+	<!-- 服务跟踪及日志记录 -->
+	<module>trace_1</module>
+	<module>trace_2</module>
+	<module>zipkin_server</module>
+	<!-- 微服务web方案(service与Jsp实现分离负载) -->
+	<module>hello_service2</module>
+	<module>api_gateway2</module>
+	<module>spring_boot_jsp2</module>
+  </modules>
+</project>
