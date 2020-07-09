@@ -1,0 +1,120 @@
+﻿eureka
+服务注册中心
+
+一.版本
+1.spring cloud版本说明:
+demo用到的是Brixtom.SR5+spring boot1.3.7
+目前版本已经升级到Brixtom.SR7,SR7也能配合spring boot1.3.7或spring boot1.3.x版本,
+如果用spring boot1.4.x会出现各种问题
+
+2.spring cloud与spring boot版本对应:
+Angel版本对应Spring Boot 1.2.x 
+Brixton版本对应Spring Boot 1.3.x 
+Camden版本对应Spring Boot 1.4.x
+Dalston版本对应Spring Boot 1.5.x
+
+二.注册中心
+1.结构
+服务注册中心(eureka_server注册中心)
+↑
+服务提供者(hello_service微服务spring boot应用)
+↑
+服务消费者(ribbon_consumer可以是java,php,js...任何语言调用方)
+
+
+2.简单注册中心
+新建eureka_server工程
+http://127.0.0.1:1111/
+
+新建hello_service工程
+http://127.0.0.1:8080/hello
+
+新建ribbon_consumer工程
+http://127.0.0.1:9000/ribbon-consumer
+
+三.高可用注册中心
+1.新建两个配置文件(eureka_server)：
+peer1(application-peer1.properties):
+spring.application.name=eureka-server
+server.port=1111
+eureka.instance.hostname=peer1
+eureka.server.enable-self-preservation=false
+eureka.client.serviceUrl.defaultZone=http://peer2:1112/eureka/
+
+peer2(application-peer2.properties):
+spring.application.name=eureka-server
+server.port=1112
+eureka.instance.hostname=peer2
+eureka.server.enable-self-preservation=false
+eureka.client.serviceUrl.defaultZone=http://peer1:1111/eureka/
+
+把两个配置文件扔到eureka_server注册中心项目中
+eureka.server.enable-self-preservation=false	:	本地调试关闭保护机制
+
+2.配置本机host:
+127.0.0.1	peer1
+127.0.0.1	peer2
+
+3.启动两注册中心
+java -jar eureka_server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1
+java -jar eureka_server-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2
+
+用如下访问都可以访问到两个注册中心:
+http://localhost:1111/
+http://localhost:1112/
+
+
+4.服务提供者配置(hello_service):
+spring.application.name=hello-service
+eureka.client.serviceUrl.defaultZone=http://peer1:1111/eureka/,http://peer2:1112/eureka/
+
+启动两个服务提供者
+java -jar hello_service-0.0.1-SNAPSHOT.jar --server.port=8081
+java -jar hello_service-0.0.1-SNAPSHOT.jar --server.port=8082
+
+5.服务消费者配置(ribbon_consumer)
+spring.application.name=ribbon-consumer
+server.port=9000
+eureka.client.serviceUrl.defaultZone=http://localhost:1111/eureka/
+
+调用上面的地址,可在两个服务提供者控制台分别看到信息打印及调用
+http://127.0.0.1:9000/ribbon-consumer
+
+http://127.0.0.1:8081/hello
+point
+服务注册配置
+服务实例配置
+健康检测
+跨平台支持
+
+
+原理
+1.注册中心
+简单的
+eureka.client.register-with-eureka=false	//注册中心,false表示不向注册中心注册自己
+eureka.client.fetch-registry=false			//注册中心就是维护服务实例,它不需要去检索服务,所以设置为false
+高可用
+
+失效剔除
+如果是正常关闭服务实例,服务实例会向注册中心发送一个REST请求,告诉我下线了.
+假如实例内存溢出,不能正常通知注册中心,eureka_server启动时会创建一个定时任务
+每隔(默认60秒)将当前清单中超时(默认90秒)没有续约的服务剔除出去
+
+自我保护
+eureka_server运行期间会统计心跳失败的比例在15分钟内是否低于85%,
+如果出现低的情况eureka_server会将当前的实例注册信息保护起来,让实例不会过期.
+本地调试很容易触发注册中心保护机制,会使得注册中心维护的服务实例不那么准确,
+所以开发时可以使用如下配置关闭保护机制
+eureka.server.enable-self-preservation=false	//本地调试关闭保护机制
+
+2.服务提供者
+服务续约,服务提供者会维护一个心跳告诉 注册中心 "我还活着",以防止注册中心"剔除任务"。
+eureka.instance.lease-renewal-interval-in-seconds=30	//服务续约任务的调用时间默认30秒
+eureka.instance.lease-expiration-duration-in-seconds=90	//服务失效的时间默认90秒
+
+3.服务消费者
+eureka.client.fetch-registry=true	//确保为true(默认为true)
+eureka.client.registry-fetch-interval-seconds=30 	//修改缓存清单更新时间默认30秒
+
+region和zone
+?

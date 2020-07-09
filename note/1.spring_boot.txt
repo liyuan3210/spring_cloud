@@ -1,0 +1,220 @@
+﻿spring boot
+	微服务程序框架
+
+	框架快速定制下载
+	http://start.spring.io/
+
+一.环境
+	jdk : 1.8
+	maven : 3.5.0
+	eclipse : Neon.3 Release4.6.3
+
+二.eclipse新建maven项目(spring boot)
+	1.maven安装配置好,使用eclipse创建maven项目(选择maven-archetype-quickstart)
+
+	2.然后进入http://projects.spring.io/spring-boot/(maven installation)配置pom.xml文件
+
+	3.添加配置文件src/main/resources目录下面(application.properties)
+
+	4.编写测试方法,验证创建的项目,项目代码见如下
+	SRC:spring_boot
+
+	5.最后进入项目根目录pom.xml文件下,执行mvn clean install
+	耐心等待maven构建完,运行App main方法，服务启动，成功。
+
+	打包：
+	mvn clean install
+	会在项目target目录下生成jar执行文件
+
+	运行测试：
+	java -jar *-SNAPSHOT.jar  或  java -jar *-SNAPSHOT.jar --server.port=8888
+
+三.知识点
+	1.配置文件(YAML与properties)
+	YAML以大纲缩进方式组织数据
+	1>.以空格为单位进行缩进。
+	2>.每个属性值":"开头要一个空格
+
+	2.自定义参数
+	Book.java
+
+	3.参数引用
+	properties文件里面
+	book.name=SpringCloud
+	book.autor=ZhangYongChao
+	book.desc=${book.autor} is writing <<${book.name}>>
+
+	4.使用随机数
+	#随机字符串
+	com.didispace.blog.value=${random.value}
+	#随机int
+	com.didispace.blog.number=${random.int}
+	#随机long
+	com.didispace.blog.bignumber=${random.long}
+	#10以内随机数
+	com.didispace.blog.test1=${random.int(10)}
+	#10~20的随机数
+	com.didispace.blog.test2=${random.int(10,20)}
+
+	5.命令行参数
+	java -jar *-SNAPSHOT.jar --server.port=8888
+	可以在命令行设置配置文件里面的参数server.port
+
+	6.多环境配置
+	application-{profile}.properties其中{profile}对应环境标识
+
+	application-dev.properties
+	application-test.properties
+	application-prod.properties
+
+	spring.profiles.active=dev默认为dev环境
+
+
+	7.加载顺序
+		spring boot特别属性加载顺序
+		1>.命令行参数
+		2>.SPRING_APPLICATION_JSON中属性
+		3>.java:comp/env中的JNDI属性
+		4>.java系统属性
+		5>.操作系统的环境变量
+		6>.通过random.*配置属性
+		7>.位于当前jar包以外{profile}或YAML
+		8>.位于当前jar包之内{profile}或YAML
+		9>.位于当前jar包以外application.properties和YAML
+		10>.位于当前jar包之内application.properties和YAML
+		11>.@Configuration类
+		12>.SpringApplication.setDefaultProperties
+
+	8.监控管理
+	<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+	应用配置
+	度量指标
+	操作控制类
+
+四.打包
+	1.java project新建spring boot项目:
+	首先要通过mvn方式打包后,提取jar里面的lib库.
+	新建java project项目,引用lib库到项目中，拷贝application.properties到项目src目录下,然后就可以运行sprint boot.
+
+	打包:
+	右键项目Export>java(Runnable JAR file)
+	>
+	launch configuration(选择项目)
+	Export destination(选择导出目录地址及填写jar名称)
+	Library handing(必须选择Copy required libraries into a sub-folder next to the generated JAR)>Finish完成
+	>
+	用rar软件打开打包好的jar,查看里面META-INF/MANIFEST.MF文件lib目录名称，然后新建这个目录把spring boot支持jar包放到这个目录,
+	把打包好的jar放到这个lib目录同级，然后就可以通过java -jar *.jar命令运行发布spring boot项目了
+
+
+	2.jar包MANIFEST.MF使用实例,eclipse打jar包:
+	1.新建java project项目ts,目录结构
+	src
+		com
+			dir1
+				Fun1.java>static f1()>println("f1 ok");
+			dir2
+				Fun2.java>static f2()>println("f2 ok");
+	App.java(main)
+	println("**into App**");
+	Fun1.f1();
+	Fun2.f2();
+	2.Fun1.java Fun2.java分别打成Fun1.jar Fun2.jar
+	eclipse>右键项目(export）>jar file
+	>
+	填写好导出*.jar Export路径及名字保证
+	Export generated class files and resources(被选上)
+	>
+	点击next，至 JAR Manifest Specification
+	Seal contents
+	Seal some packages(被选上)
+	Main class:	如果是运行的jar需要在此选择Main类,如果只是第三方jar就不必选择
+
+	3.把源文件Fun1.java Fun2.java在项目里面删除，导入Fun1.jar Fun2.jar,打包App.java运行的jar
+
+	4.MANIFEST.MF(lib表示运行jar同级的目录名称，第三方jar都放在里面)
+	Manifest-Version: 1.0
+	Main-Class: com.App
+	Class-Path: lib/Fun1.jar lib/Fun2.jar 
+
+	MANIFEST.MF编写注意项:
+	第一行不能为空
+	最后一行要回车
+	每行末尾要一个空格
+	每一行":"后要跟上一个空格
+	第一行不能空，行与行之间不能有空行，每一行的最后一个字符不能是空格
+	最后一行一定是空行
+	每个属性的名称和值之间（冒号后面）一定要有空
+	文件的每一行都不能超过72个字节（一般是70个ASCII字母加上回车换行符）
+	如果72个字节不够用，则另起一行并以空格开头：以空格开头的行都被视为前一行的续行。
+
+	5.MANIFEST.MF替换好打包好的运行jar,并运行
+	java -jar *.jar
+
+
+五.spring-boot-cli
+	1.下载
+	在spring boot reference页面搜索.zip就有看到下载链接
+
+	2.解压安装配置path:
+	path:~\spring-boot-cli-*.RELEASE-bin\bin
+
+	3.新建目录app,里面创建Main.java,内容如下:
+	@RestController  
+	class MainRun {  
+		@RequestMapping("/")  
+		String home() { 
+			"Hello World!"  
+		}  
+	} 
+
+	4.在目录~/app上面执行
+	spring run app
+
+	5.在浏览器访问
+	http://127.0.0.1:8080/
+
+	6.spring boot+mybatis添加事物支持
+	main启动类上面添加标签(开启事物)
+	@EnableTransactionManagement
+
+	业务处理方法上面添加如下标签(监听事物)
+	@Transactional
+
+	catch异常添加如下回滚代码
+	TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+
+六.svn(eclipse)导入,导出
+	1.导入
+	只需导入src文件夹与pom.xml
+
+	2.导出
+	Project Explorer区右键选择import>SVN
+	>选择(做为工作空间中的项目检出)>填写检出新的项目名称>finsh
+	项目转换:
+	项目检出后，需要对项目进行转换 右键项目>Configure
+	>
+	Convert to Maven Project
+
+	上面首次可能转换的有点慢,因为后台需要maven下载相关文件,下载不动时建议通过hero vpn翻墙软件,连接国外网络进行下载
+	
+七.问题
+	spring boot与mybatis整合
+	mybatis官网：
+	www.mybatis.org
+
+	1.mvn install打jar包时application.properties打不进去，需要手动把application.properties文件放到jar包里面，报错如下：
+	Cannot determine embedded database driver class for database type NONE
+
+	表示application.properties文件项目没读取到,mvn打包后需要手动把application.properties文件添加到src/main/java目录下(com包同级目录下)
+
+	2.EMERGENCY! EUREKA MAY BE INCORRECTLY CLAIMING INSTANCES ARE UP WHEN THEY'RE NOT. 
+	RENEWALS ARE LESSER THAN THRESHOLD AND HENCE THE INSTANCES ARE NOT BEING EXPIRED JUST TO BE SAFE.
+
+	3.mvn命令出现错误,pom文件报错解决方法(删除下面本地仓库jar,重新mvn命令下载编译)
+	[WARNING] 读取C:\Users\liyuan\.m2\repository\com\esotericsoftware\kryo-shaded\3.
+	0.3\kryo-shaded-3.0.3.jar时出错; invalid LOC header (bad signature)
