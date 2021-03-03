@@ -1,6 +1,0 @@
-﻿bus
-了解消息总线
-集成spring cloud,kafka(rabbitmq-hello)
-
-point
-使用config结合消息总线动态刷新配置文件
